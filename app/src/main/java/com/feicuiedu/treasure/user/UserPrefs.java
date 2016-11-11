@@ -31,11 +31,11 @@ public class UserPrefs {
     }
 
     public void setTokenid(int tokenid) {
-        preferences.edit().putInt(KEY_TOKENID, tokenid).apply();
+        preferences.edit().putInt(KEY_TOKENID, tokenid).commit();
     }
 
     public void setPhoto(String photoUrl) {
-        preferences.edit().putString(KEY_PHOTO, photoUrl).apply();
+        preferences.edit().putString(KEY_PHOTO, photoUrl).commit();
     }
 
     public int getTokenid() {
@@ -44,5 +44,9 @@ public class UserPrefs {
 
     public String getPhoto() {
         return preferences.getString(KEY_PHOTO, null);
+    }
+
+    public void clearUser(){
+        preferences.edit().clear().commit();
     }
 }

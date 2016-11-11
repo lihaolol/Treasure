@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -78,6 +79,17 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView 
         etConfirm.addTextChangedListener(textWatcher);
 
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private TextWatcher textWatcher = new TextWatcher() {
         @Override

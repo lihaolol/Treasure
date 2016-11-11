@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.feicuiedu.treasure.MainActivity;
 import com.feicuiedu.treasure.R;
 import com.feicuiedu.treasure.commons.ActivityUtils;
 import com.feicuiedu.treasure.treasure.TreasureRepo;
@@ -83,10 +84,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_hide: // 埋藏宝藏
                 drawerLayout.closeDrawer(GravityCompat.START);
+                break;
+            case R.id.menu_item_logout:// 退出登录
+                drawerLayout.closeDrawer(GravityCompat.START);
+                UserPrefs.getInstance().clearUser();
+                activityUtils.startActivity(MainActivity.class);
+                finish();
                 break;
         }
         // 返回true,当前选项变为checked状态

@@ -4,12 +4,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.feicuiedu.treasure.commons.ActivityUtils;
+import com.feicuiedu.treasure.treasure.home.HomeActivity;
+import com.feicuiedu.treasure.user.UserPrefs;
 import com.feicuiedu.treasure.user.login.LoginActivity;
 import com.feicuiedu.treasure.user.register.RegisterActivity;
 
@@ -37,6 +41,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         activityUtils = new ActivityUtils(this);
         setContentView(R.layout.activity_main);
+
+        // 判断是否登录过
+        SharedPreferences preferences = getSharedPreferences("user_info", MODE_PRIVATE);
+        if (preferences != null) {
+            if (preferences.getInt("key_tokenid", 0)==UserPrefs.getInstance().getTokenid()) {
+                activityUtils.startActivity(HomeActivity.class);
+                finish();
+            }
+        }
+
         ButterKnife.bind(this);
         // 注册本地广播接收器
         IntentFilter intentFilter = new IntentFilter(ACTION_ENTER_HOME);

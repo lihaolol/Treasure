@@ -79,10 +79,10 @@ public class MapFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // 初始化百度地图
-        initBaiduMap();
+//        initBaiduMap();
 
         // 初始化定位相关
-        initLocation();
+//        initLocation();
     }
 
     private void initLocation() {
