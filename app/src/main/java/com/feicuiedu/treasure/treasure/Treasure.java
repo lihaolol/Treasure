@@ -7,7 +7,6 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 /**
-
  * 获取宝藏时的响应体数据 ResponeBody
  */
 public class Treasure implements Serializable{

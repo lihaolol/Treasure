@@ -28,6 +28,7 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.feicuiedu.treasure.R;
 import com.feicuiedu.treasure.components.TreasureView;
+import com.feicuiedu.treasure.treasure.Area;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,6 +64,8 @@ public class MapFragment extends Fragment {
     private Unbinder bind;
     private LocationClient locationClient;
     private LatLng myLocation;
+
+    private LatLng target;// 用来暂时保存一下当前地图的位置，方便我们判断地图的位置有没有变化
 
     private boolean isFirstLocate = true;// 这个主要是用来判断是不是第一进来的时候的定位
 
@@ -231,9 +234,40 @@ public class MapFragment extends Fragment {
 
         @Override
         public void onMapStatusChangeFinish(MapStatus mapStatus) {
+            // 当地图的状态发生变化时，动态的去获取某区域内的宝藏数据
 
+            // 地图状态发生变化了
+            LatLng target = mapStatus.target;
+            // 判断位置有没有变化
+            if (target!=MapFragment.this.target){
+
+                // 位置发生变化了，去进行此位置周边的宝藏数据获取，提供方法来进行
+                updateMapArea();
+
+                // 将位置更新为变化后的位置
+                MapFragment.this.target = target;
+            }
         }
     };
+
+    // 位置发生变化了，区域也变化了，更新区域，动态获取区域内数据
+    private void updateMapArea() {
+
+        MapStatus mapStatus = baiduMap.getMapStatus();
+
+        // 获取经纬度
+        double lng = mapStatus.target.longitude;
+        double lat = mapStatus.target.latitude;
+
+        Area area = new Area();
+        area.setMaxLat(Math.ceil(lat));//经纬度的向上取整
+        area.setMaxLng(Math.ceil(lng));
+        area.setMinLat(Math.floor(lat));// 经纬度的向下取整
+        area.setMinLng(Math.floor(lng));
+
+        // 根据区域来进行数据的获取
+        new MapPresenter().getTreasure(area);
+    }
 
 
     @Override
