@@ -20,10 +20,15 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BaiduMapOptions;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.feicuiedu.treasure.R;
@@ -88,10 +93,10 @@ public class MapFragment extends Fragment implements MapMvpView {
         super.onViewCreated(view, savedInstanceState);
 
         // 初始化百度地图
-//        initBaiduMap();
+        initBaiduMap();
 
         // 初始化定位相关
-//        initLocation();
+        initLocation();
     }
 
     private void initLocation() {
@@ -179,6 +184,7 @@ public class MapFragment extends Fragment implements MapMvpView {
 
         // 怎么对地图状态进行监听？
         baiduMap.setOnMapStatusChangeListener(mapStatusChangeListener);
+        baiduMap.setOnMarkerClickListener(markerListener);
 
     }
 
@@ -289,6 +295,50 @@ public class MapFragment extends Fragment implements MapMvpView {
 
     @Override
     public void setData(List<Treasure> list) {
-        // TODO 我们要将拿到的宝藏数据以添加覆盖物的形式展示
+        for (Treasure treasure:list) {
+            LatLng lat = new LatLng(treasure.getLatitude(),treasure.getLongitude());
+            // 要在经纬度处添加覆盖物Marker
+            addMarker(lat,treasure.getId());
+        }
     }
+    private BitmapDescriptor dot = BitmapDescriptorFactory.fromResource(R.drawable.treasure_dot);
+    private BitmapDescriptor dot_click = BitmapDescriptorFactory.fromResource(R.drawable.treasure_expanded);
+
+    // 添加宝藏的覆盖物，每一个覆盖物中都包含各自的宝藏信息
+    private void addMarker(LatLng lat, int treasureId) {
+
+        MarkerOptions options = new MarkerOptions();
+        options.position(lat);// 设置位置
+        options.icon(dot);// 设置覆盖物的图标
+        options.anchor(0.5f,0.5f);// 设置描点
+
+        Bundle bundle = new Bundle();
+        bundle.putInt("id",treasureId);
+        options.extraInfo(bundle);
+        baiduMap.addOverlay(options);
+    }
+    private Marker currentMarker;
+
+    private BaiduMap.OnMarkerClickListener markerListener = new BaiduMap.OnMarkerClickListener() {
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+
+            if (currentMarker!=null){
+                currentMarker.setVisible(true);
+            }
+            currentMarker = marker;
+            currentMarker.setVisible(false);
+
+            InfoWindow infoWindow = new InfoWindow(dot_click,marker.getPosition(),0,infowindowListener);
+            baiduMap.showInfoWindow(infoWindow);
+
+            return false;
+        }
+    };
+    private InfoWindow.OnInfoWindowClickListener infowindowListener = new InfoWindow.OnInfoWindowClickListener() {
+        @Override
+        public void onInfoWindowClick() {
+            // TODO 隐藏
+        }
+    };
 }

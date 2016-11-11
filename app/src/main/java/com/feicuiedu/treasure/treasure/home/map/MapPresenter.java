@@ -1,9 +1,12 @@
 package com.feicuiedu.treasure.treasure.home.map;
 
+import android.util.Log;
+
 import com.feicuiedu.treasure.net.NetClient;
 import com.feicuiedu.treasure.treasure.Area;
 import com.feicuiedu.treasure.treasure.Treasure;
 import com.feicuiedu.treasure.treasure.TreasureApi;
+import com.feicuiedu.treasure.treasure.TreasureRepo;
 
 import java.util.List;
 
@@ -24,14 +27,18 @@ public class MapPresenter {
      * 2. 将我们获取到的宝藏数据给视图展示
      */
     private MapMvpView mapMvpView;
+    private Area area;
 
     public MapPresenter(MapMvpView mapMvpView) {
         this.mapMvpView = mapMvpView;
     }
 
     public void getTreasure(Area area){
+        if (TreasureRepo.getInstance().isCached(area)){
+            return;
+        }
+        this.area = area;
         // 来去进行宝藏数据的获取
-
         TreasureApi treasureApi = NetClient.getInstance().getTreasureApi();
         Call<List<Treasure>> treasureCall = treasureApi.getTreasureInArea(area);
         treasureCall.enqueue(callback);
@@ -48,6 +55,9 @@ public class MapPresenter {
                     mapMvpView.showMessage("发生了未知的错误");
                     return;
                 }
+                TreasureRepo.getInstance().addTreasure(treasureList);
+                TreasureRepo.getInstance().cache(area);
+
                 mapMvpView.setData(treasureList);
             }
         }
