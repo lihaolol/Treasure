@@ -27,8 +27,12 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.feicuiedu.treasure.R;
+import com.feicuiedu.treasure.commons.ActivityUtils;
 import com.feicuiedu.treasure.components.TreasureView;
 import com.feicuiedu.treasure.treasure.Area;
+import com.feicuiedu.treasure.treasure.Treasure;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,7 +42,7 @@ import butterknife.Unbinder;
 /**
  * 放置在HomeActivity里面，主要展示的就是地图，宝藏展示、宝藏详情、埋藏宝藏都是在这个里面来进行
  */
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements MapMvpView {
 
     @BindView(R.id.map_frame)
     FrameLayout mapFrame;
@@ -64,6 +68,7 @@ public class MapFragment extends Fragment {
     private Unbinder bind;
     private LocationClient locationClient;
     private LatLng myLocation;
+    private ActivityUtils activityUtils;
 
     private LatLng target;// 用来暂时保存一下当前地图的位置，方便我们判断地图的位置有没有变化
 
@@ -74,6 +79,7 @@ public class MapFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         bind = ButterKnife.bind(this, view);
+        activityUtils = new ActivityUtils(this);
         return view;
     }
 
@@ -239,7 +245,7 @@ public class MapFragment extends Fragment {
             // 地图状态发生变化了
             LatLng target = mapStatus.target;
             // 判断位置有没有变化
-            if (target!=MapFragment.this.target){
+            if (target != MapFragment.this.target) {
 
                 // 位置发生变化了，去进行此位置周边的宝藏数据获取，提供方法来进行
                 updateMapArea();
@@ -266,7 +272,7 @@ public class MapFragment extends Fragment {
         area.setMinLng(Math.floor(lng));
 
         // 根据区域来进行数据的获取
-        new MapPresenter().getTreasure(area);
+        new MapPresenter(this).getTreasure(area);
     }
 
 
@@ -274,5 +280,15 @@ public class MapFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         bind.unbind();
+    }
+
+    @Override
+    public void showMessage(String msg) {
+        activityUtils.showToast(msg);
+    }
+
+    @Override
+    public void setData(List<Treasure> list) {
+        // TODO 我们要将拿到的宝藏数据以添加覆盖物的形式展示
     }
 }
