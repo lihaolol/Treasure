@@ -7,8 +7,13 @@ import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.feicuiedu.treasure.R;
 import com.feicuiedu.treasure.treasure.Treasure;
+import com.feicuiedu.treasure.treasure.home.map.MapFragment;
+
+import org.xml.sax.Parser;
 
 import java.text.DecimalFormat;
 

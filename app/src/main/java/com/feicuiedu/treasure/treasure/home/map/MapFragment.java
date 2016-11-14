@@ -295,14 +295,15 @@ public class MapFragment extends Fragment implements MapMvpView {
 
     @Override
     public void setData(List<Treasure> list) {
-        for (Treasure treasure:list) {
-            LatLng lat = new LatLng(treasure.getLatitude(),treasure.getLongitude());
+        for (Treasure treasure : list) {
+            LatLng lat = new LatLng(treasure.getLatitude(), treasure.getLongitude());
             // 要在经纬度处添加覆盖物Marker
-            addMarker(lat,treasure.getId());
+            addMarker(lat, treasure.getId());
         }
     }
-    private BitmapDescriptor dot = BitmapDescriptorFactory.fromResource(R.drawable.treasure_dot);
+
     private BitmapDescriptor dot_click = BitmapDescriptorFactory.fromResource(R.drawable.treasure_expanded);
+    private BitmapDescriptor dot = BitmapDescriptorFactory.fromResource(R.drawable.treasure_dot);
 
     // 添加宝藏的覆盖物，每一个覆盖物中都包含各自的宝藏信息
     private void addMarker(LatLng lat, int treasureId) {
@@ -310,26 +311,27 @@ public class MapFragment extends Fragment implements MapMvpView {
         MarkerOptions options = new MarkerOptions();
         options.position(lat);// 设置位置
         options.icon(dot);// 设置覆盖物的图标
-        options.anchor(0.5f,0.5f);// 设置描点
+        options.anchor(0.5f, 0.5f);// 设置描点
 
         Bundle bundle = new Bundle();
-        bundle.putInt("id",treasureId);
+        bundle.putInt("id", treasureId);
         options.extraInfo(bundle);
         baiduMap.addOverlay(options);
     }
+
     private Marker currentMarker;
 
     private BaiduMap.OnMarkerClickListener markerListener = new BaiduMap.OnMarkerClickListener() {
         @Override
         public boolean onMarkerClick(Marker marker) {
 
-            if (currentMarker!=null){
+            if (currentMarker != null) {
                 currentMarker.setVisible(true);
             }
             currentMarker = marker;
             currentMarker.setVisible(false);
 
-            InfoWindow infoWindow = new InfoWindow(dot_click,marker.getPosition(),0,infowindowListener);
+            InfoWindow infoWindow = new InfoWindow(dot_click, marker.getPosition(), 0, infowindowListener);
             baiduMap.showInfoWindow(infoWindow);
 
             return false;
@@ -341,4 +343,54 @@ public class MapFragment extends Fragment implements MapMvpView {
             // TODO 隐藏
         }
     };
+
+    private static final int UI_MODE_NORMAL = 0;// 普通的视图
+    private static final int UI_MODE_SECLECT = 1;// 宝藏选中视图
+    private static final int UI_MODE_HIDE = 2;// 埋藏宝藏视图
+
+    private int uiMode = UI_MODE_NORMAL;
+
+    // 提供一个方法：用来切换视图
+    private void changeUIMode(int uiMode) {
+
+        if (this.uiMode==uiMode){
+            return;
+        }
+        this.uiMode = uiMode;
+        switch (uiMode) {
+
+            // 普通的视图
+            case UI_MODE_NORMAL: {
+                if (currentMarker!=null){
+                    currentMarker.setVisible(true);
+                }
+                baiduMap.hideInfoWindow();
+                layoutBottom.setVisibility(View.GONE);
+                centerLayout.setVisibility(View.GONE);
+            }
+            break;
+            // 宝藏选中视图
+            case UI_MODE_SECLECT: {
+                layoutBottom.setVisibility(View.VISIBLE);
+                treasureView.setVisibility(View.VISIBLE);
+                centerLayout.setVisibility(View.GONE);
+                hideTreasure.setVisibility(View.GONE);
+            }
+            break;
+            // 埋藏宝藏的视图
+            case UI_MODE_HIDE: {
+                centerLayout.setVisibility(View.VISIBLE);
+                layoutBottom.setVisibility(View.GONE);
+                btnHideHere.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        layoutBottom.setVisibility(View.VISIBLE);
+                        hideTreasure.setVisibility(View.VISIBLE);
+                        treasureView.setVisibility(View.GONE);
+                    }
+                });
+            }
+            break;
+        }
+    }
 }
