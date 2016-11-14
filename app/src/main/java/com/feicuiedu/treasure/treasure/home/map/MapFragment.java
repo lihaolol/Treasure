@@ -1,6 +1,7 @@
 package com.feicuiedu.treasure.treasure.home.map;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,7 @@ import com.feicuiedu.treasure.components.TreasureView;
 import com.feicuiedu.treasure.treasure.Area;
 import com.feicuiedu.treasure.treasure.Treasure;
 import com.feicuiedu.treasure.treasure.TreasureRepo;
+import com.feicuiedu.treasure.treasure.home.detail.TreasureDetailActivity;
 
 import java.util.List;
 
@@ -156,7 +158,7 @@ public class MapFragment extends Fragment implements MapMvpView {
         }
     };
 
-    public static LatLng getMyLocation(){
+    public static LatLng getMyLocation() {
         return myLocation;
     }
 
@@ -236,6 +238,14 @@ public class MapFragment extends Fragment implements MapMvpView {
                 baiduMap.setMapStatus(MapStatusUpdateFactory.zoomOut());// 缩小
                 break;
         }
+    }
+
+    @OnClick(R.id.treasureView)
+    public void clickTreasureView() {
+        // 跳转到详情页面，宝藏传递过去
+        int id = currentMarker.getExtraInfo().getInt("id");
+        Treasure treasure = TreasureRepo.getInstance().getTreasure(id);
+        TreasureDetailActivity.open(getContext(),treasure);
     }
 
     // 百度地图状态的监听
@@ -370,7 +380,7 @@ public class MapFragment extends Fragment implements MapMvpView {
     // 提供一个方法：用来切换视图
     private void changeUIMode(int uiMode) {
 
-        if (this.uiMode==uiMode){
+        if (this.uiMode == uiMode) {
             return;
         }
         this.uiMode = uiMode;
@@ -378,7 +388,7 @@ public class MapFragment extends Fragment implements MapMvpView {
 
             // 普通的视图
             case UI_MODE_NORMAL: {
-                if (currentMarker!=null){
+                if (currentMarker != null) {
                     currentMarker.setVisible(true);
                 }
                 baiduMap.hideInfoWindow();
