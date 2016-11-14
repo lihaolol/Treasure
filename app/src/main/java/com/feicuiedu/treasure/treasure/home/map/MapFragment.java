@@ -80,6 +80,8 @@ public class MapFragment extends Fragment implements MapMvpView {
 
     private LatLng target;// 用来暂时保存一下当前地图的位置，方便我们判断地图的位置有没有变化
 
+    private static String myAddress;
+
     private boolean isFirstLocate = true;// 这个主要是用来判断是不是第一进来的时候的定位
 
     @Override
@@ -144,6 +146,9 @@ public class MapFragment extends Fragment implements MapMvpView {
             // 拿到定位的位置
             myLocation = new LatLng(lat, lng);
 
+            // 拿到定位的地址
+            myAddress = bdLocation.getAddrStr();
+
             MyLocationData myLocationData = new MyLocationData.Builder()
                     .longitude(lng)
                     .latitude(lat)
@@ -160,6 +165,10 @@ public class MapFragment extends Fragment implements MapMvpView {
 
     public static LatLng getMyLocation() {
         return myLocation;
+    }
+
+    public static String getMyAddress(){
+        return myAddress;
     }
 
     private void initBaiduMap() {

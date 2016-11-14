@@ -1,5 +1,8 @@
 package com.feicuiedu.treasure.treasure;
 
+import com.feicuiedu.treasure.treasure.home.detail.TreasureDetail;
+import com.feicuiedu.treasure.treasure.home.detail.TreasureDetailResult;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -14,6 +17,9 @@ public interface TreasureApi {
 
     @POST("/Handler/TreasureHandler.ashx?action=show")
     Call<List<Treasure>> getTreasureInArea(@Body Area area);
+
+    @POST("/Handler/TreasureHandler.ashx?action=tdetails")
+    Call<List<TreasureDetailResult>> getTreasureDetail(@Body TreasureDetail body);
 
 
 }
