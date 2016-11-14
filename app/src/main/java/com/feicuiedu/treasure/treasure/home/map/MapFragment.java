@@ -36,6 +36,7 @@ import com.feicuiedu.treasure.commons.ActivityUtils;
 import com.feicuiedu.treasure.components.TreasureView;
 import com.feicuiedu.treasure.treasure.Area;
 import com.feicuiedu.treasure.treasure.Treasure;
+import com.feicuiedu.treasure.treasure.TreasureRepo;
 
 import java.util.List;
 
@@ -72,7 +73,7 @@ public class MapFragment extends Fragment implements MapMvpView {
     private BaiduMap baiduMap;
     private Unbinder bind;
     private LocationClient locationClient;
-    private LatLng myLocation;
+    private static LatLng myLocation;
     private ActivityUtils activityUtils;
 
     private LatLng target;// 用来暂时保存一下当前地图的位置，方便我们判断地图的位置有没有变化
@@ -154,6 +155,10 @@ public class MapFragment extends Fragment implements MapMvpView {
             }
         }
     };
+
+    public static LatLng getMyLocation(){
+        return myLocation;
+    }
 
     private void initBaiduMap() {
 
@@ -334,13 +339,25 @@ public class MapFragment extends Fragment implements MapMvpView {
             InfoWindow infoWindow = new InfoWindow(dot_click, marker.getPosition(), 0, infowindowListener);
             baiduMap.showInfoWindow(infoWindow);
 
+            // 取出当前的Marker的宝藏信息
+            int id = marker.getExtraInfo().getInt("id");
+            Treasure treasure = TreasureRepo.getInstance().getTreasure(id);
+            treasureView.bindTreasure(treasure);
+
+            /**
+             * 切换到宝藏选中视图
+             */
+            changeUIMode(UI_MODE_SECLECT);
+
             return false;
         }
     };
     private InfoWindow.OnInfoWindowClickListener infowindowListener = new InfoWindow.OnInfoWindowClickListener() {
         @Override
         public void onInfoWindowClick() {
-            // TODO 隐藏
+            // 切换回普通视图
+            changeUIMode(UI_MODE_NORMAL);
+
         }
     };
 
