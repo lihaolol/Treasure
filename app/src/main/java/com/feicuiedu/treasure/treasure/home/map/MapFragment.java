@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.feicuiedu.treasure.R;
 import com.feicuiedu.treasure.commons.ActivityUtils;
@@ -44,6 +46,7 @@ import com.feicuiedu.treasure.treasure.Area;
 import com.feicuiedu.treasure.treasure.Treasure;
 import com.feicuiedu.treasure.treasure.TreasureRepo;
 import com.feicuiedu.treasure.treasure.home.detail.TreasureDetailActivity;
+import com.feicuiedu.treasure.treasure.home.hide.HideTreasureActivity;
 
 import java.util.List;
 
@@ -89,6 +92,7 @@ public class MapFragment extends Fragment implements MapMvpView {
 
     private boolean isFirstLocate = true;// 这个主要是用来判断是不是第一进来的时候的定位
     private String address;
+    private GeoCoder geoCoder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -115,7 +119,7 @@ public class MapFragment extends Fragment implements MapMvpView {
 
     private void initGeoCoder() {
         // 创建地理编码查询变量
-        GeoCoder geoCoder = GeoCoder.newInstance();
+        geoCoder = GeoCoder.newInstance();
         // 设置地理编码的监听
         geoCoder.setOnGetGeoCodeResultListener(geoCoderResultListener);
     }
@@ -131,13 +135,14 @@ public class MapFragment extends Fragment implements MapMvpView {
         // 反地理编码：经纬度-->地址
         @Override
         public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
-            if (reverseGeoCodeResult==null){
+            if (reverseGeoCodeResult == null) {
+                address = "未知";
                 return;
             }
             // 没有问题的时候
-//            if (reverseGeoCodeResult.error== SearchResult.ERRORNO.NO_ERROR){
-//                address = "未知";
-//            }
+            if (reverseGeoCodeResult.error== SearchResult.ERRORNO.NO_ERROR){
+                address = "未知";
+            }
             // 得到反地理编码的结果
             address = reverseGeoCodeResult.getAddress();
             // 将结果展示到卡片标题录入的地址上
@@ -208,7 +213,7 @@ public class MapFragment extends Fragment implements MapMvpView {
         return myLocation;
     }
 
-    public static String getMyAddress(){
+    public static String getMyAddress() {
         return myAddress;
     }
 
@@ -295,7 +300,22 @@ public class MapFragment extends Fragment implements MapMvpView {
         // 跳转到详情页面，宝藏传递过去
         int id = currentMarker.getExtraInfo().getInt("id");
         Treasure treasure = TreasureRepo.getInstance().getTreasure(id);
-        TreasureDetailActivity.open(getContext(),treasure);
+        TreasureDetailActivity.open(getContext(), treasure);
+    }
+
+    @OnClick(R.id.hide_treasure)
+    public void clickHideTreasure(){
+        // 处理埋藏宝藏的卡片的标题录入和跳转
+        // 找到我们输入的宝藏标题
+        String title = etTreasureTitle.getText().toString();
+        if (TextUtils.isEmpty(title)){
+            activityUtils.showToast("请输入宝藏标题");
+            return;
+        }
+        // 跳转到埋藏宝藏详细页面
+        LatLng latLng = baiduMap.getMapStatus().target;
+        HideTreasureActivity.open(getContext(),title,address,latLng,0);
+
     }
 
     // 百度地图状态的监听
@@ -321,8 +341,12 @@ public class MapFragment extends Fragment implements MapMvpView {
                 // 位置发生变化了，去进行此位置周边的宝藏数据获取，提供方法来进行
                 updateMapArea();
 
-                // TODO 在地图变化中实时的请求反地理编码，得到反地理编码的结果
+                // 设置反地理编码的位置
+                ReverseGeoCodeOption option = new ReverseGeoCodeOption();
+                option.location(target);
 
+                // 发起反地理编码
+                geoCoder.reverseGeoCode(option);
 
                 // 将位置更新为变化后的位置
                 MapFragment.this.target = target;
@@ -474,7 +498,7 @@ public class MapFragment extends Fragment implements MapMvpView {
         }
     }
 
-    public void switchToHideTreasure(){
+    public void switchToHideTreasure() {
         changeUIMode(UI_MODE_HIDE);
     }
 }
