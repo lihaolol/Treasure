@@ -32,6 +32,11 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.feicuiedu.treasure.R;
 import com.feicuiedu.treasure.commons.ActivityUtils;
 import com.feicuiedu.treasure.components.TreasureView;
@@ -83,6 +88,7 @@ public class MapFragment extends Fragment implements MapMvpView {
     private static String myAddress;
 
     private boolean isFirstLocate = true;// 这个主要是用来判断是不是第一进来的时候的定位
+    private String address;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -102,7 +108,42 @@ public class MapFragment extends Fragment implements MapMvpView {
 
         // 初始化定位相关
         initLocation();
+
+        // 初始化地理编码相关
+        initGeoCoder();
     }
+
+    private void initGeoCoder() {
+        // 创建地理编码查询变量
+        GeoCoder geoCoder = GeoCoder.newInstance();
+        // 设置地理编码的监听
+        geoCoder.setOnGetGeoCodeResultListener(geoCoderResultListener);
+    }
+
+    private OnGetGeoCoderResultListener geoCoderResultListener = new OnGetGeoCoderResultListener() {
+
+        // 地理编码：地址--> 经纬度
+        @Override
+        public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+
+        }
+
+        // 反地理编码：经纬度-->地址
+        @Override
+        public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
+            if (reverseGeoCodeResult==null){
+                return;
+            }
+            // 没有问题的时候
+//            if (reverseGeoCodeResult.error== SearchResult.ERRORNO.NO_ERROR){
+//                address = "未知";
+//            }
+            // 得到反地理编码的结果
+            address = reverseGeoCodeResult.getAddress();
+            // 将结果展示到卡片标题录入的地址上
+            tvCurrentLocation.setText(address);
+        }
+    };
 
     private void initLocation() {
         /**
@@ -280,6 +321,9 @@ public class MapFragment extends Fragment implements MapMvpView {
                 // 位置发生变化了，去进行此位置周边的宝藏数据获取，提供方法来进行
                 updateMapArea();
 
+                // TODO 在地图变化中实时的请求反地理编码，得到反地理编码的结果
+
+
                 // 将位置更新为变化后的位置
                 MapFragment.this.target = target;
             }
@@ -428,5 +472,9 @@ public class MapFragment extends Fragment implements MapMvpView {
             }
             break;
         }
+    }
+
+    public void switchToHideTreasure(){
+        changeUIMode(UI_MODE_HIDE);
     }
 }

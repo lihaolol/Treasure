@@ -85,7 +85,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 break;
@@ -98,6 +98,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
             case R.id.menu_item_hide: // 埋藏宝藏
                 drawerLayout.closeDrawer(GravityCompat.START);
+                // 切换到埋藏宝藏视图
+                mapFragment.switchToHideTreasure();
                 break;
             case R.id.menu_item_logout:// 退出登录
                 drawerLayout.closeDrawer(GravityCompat.START);
