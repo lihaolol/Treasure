@@ -39,6 +39,8 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.feicuiedu.treasure.R;
 import com.feicuiedu.treasure.commons.ActivityUtils;
 import com.feicuiedu.treasure.components.TreasureView;
@@ -140,7 +142,7 @@ public class MapFragment extends Fragment implements MapMvpView {
                 return;
             }
             // 没有问题的时候
-            if (reverseGeoCodeResult.error== SearchResult.ERRORNO.NO_ERROR){
+            if (reverseGeoCodeResult.error == SearchResult.ERRORNO.NO_ERROR) {
                 address = "未知";
             }
             // 得到反地理编码的结果
@@ -304,17 +306,17 @@ public class MapFragment extends Fragment implements MapMvpView {
     }
 
     @OnClick(R.id.hide_treasure)
-    public void clickHideTreasure(){
+    public void clickHideTreasure() {
         // 处理埋藏宝藏的卡片的标题录入和跳转
         // 找到我们输入的宝藏标题
         String title = etTreasureTitle.getText().toString();
-        if (TextUtils.isEmpty(title)){
+        if (TextUtils.isEmpty(title)) {
             activityUtils.showToast("请输入宝藏标题");
             return;
         }
         // 跳转到埋藏宝藏详细页面
         LatLng latLng = baiduMap.getMapStatus().target;
-        HideTreasureActivity.open(getContext(),title,address,latLng,0);
+        HideTreasureActivity.open(getContext(), title, address, latLng, 0);
 
     }
 
@@ -341,13 +343,22 @@ public class MapFragment extends Fragment implements MapMvpView {
                 // 位置发生变化了，去进行此位置周边的宝藏数据获取，提供方法来进行
                 updateMapArea();
 
-                // 设置反地理编码的位置
-                ReverseGeoCodeOption option = new ReverseGeoCodeOption();
-                option.location(target);
+                // 在宝藏埋藏模式下
+                if (uiMode == UI_MODE_HIDE) {
 
-                // 发起反地理编码
-                geoCoder.reverseGeoCode(option);
+                    // 设置反地理编码的位置
+                    ReverseGeoCodeOption option = new ReverseGeoCodeOption();
+                    option.location(target);
 
+                    // 发起反地理编码
+                    geoCoder.reverseGeoCode(option);
+
+                    // 反弹动画
+                    YoYo.with(Techniques.Bounce).duration(1000).playOn(btnHideHere);
+                    YoYo.with(Techniques.Bounce).duration(1000).playOn(ivLocated);
+                    YoYo.with(Techniques.FadeIn).duration(1000).playOn(btnHideHere);
+
+                }
                 // 将位置更新为变化后的位置
                 MapFragment.this.target = target;
             }
@@ -500,5 +511,14 @@ public class MapFragment extends Fragment implements MapMvpView {
 
     public void switchToHideTreasure() {
         changeUIMode(UI_MODE_HIDE);
+    }
+
+    // 按下Back键来调用
+    public boolean clickBackPressed(){
+        if (this.uiMode!=UI_MODE_NORMAL){
+            changeUIMode(UI_MODE_NORMAL);
+            return false;
+        }
+        return true;
     }
 }
